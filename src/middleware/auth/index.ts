@@ -7,13 +7,17 @@ export default async (req: Request, res: Response, next: NextFunction) => {
         const { url, originalUrl, headers: { "user-agent": agent } } = req
 
         const authorization: any = req.headers?.authorization?.split(' ')
-
+        
         if (!authorization && url.toUpperCase().includes('USERS/REGISTER')) {
             return next()
         }
 
         const [tokenType, token] = authorization
         
+        if (url.toUpperCase().includes('USERS/LOGIN') && tokenType === 'Basic') {
+            return next()
+        }
+
         const validToken = await jwt.verify(token)
         
         if (!validToken) return res.status(401).send({ message: "Unauthorized user" })

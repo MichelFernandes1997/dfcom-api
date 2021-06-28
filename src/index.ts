@@ -4,6 +4,8 @@ import routes from './routes'
 
 import process from 'process'
 
+import cors from 'cors'
+
 import './setup/database'
 
 import authMiddleware from './middleware/auth'
@@ -13,6 +15,8 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const app = express()
+
+app.use(cors())
 
 app.use(express.json())
 

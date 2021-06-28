@@ -14,25 +14,27 @@ const ProductController = {
     },
     async upsert (req: Request, res: Response) {
         try {
-            const { id: _id, name, title, description, price, stock, sku, image } = req.body
+            const { id, authUser, ...params } = req.body
             
+            const productInDb = await Products.findOne({ _id: id }) as any
+            
+            Object.keys(params).map(key => {
+                productInDb[key] = params[key]
+            })
+
+            if (!id) {
+                return res.status(400).json({ message: "Property /id/ are required but not sent on this request!" })
+            }
+
             await Products.updateOne(
-                _id ? { _id } : { sku },
-                {
-                    name, 
-                    title, 
-                    description, 
-                    price, 
-                    stock, 
-                    sku, 
-                    image
-                },
+                { _id: id } ,
+                productInDb,
                 {
                     upsert: true
                 }
             )
 
-            const createdProduct = await Products.findOne({ sku })
+            const createdProduct = await Products.findOne({ _id: id })
 
             return res.json(createdProduct)
         } catch (err) {
